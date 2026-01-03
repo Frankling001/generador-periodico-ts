@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Grid Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Texto instructivo -->
+        <p class="instruction-text">Finally, copy the generated HTML and CSS code and paste it into your project.</p>
+
+        <!-- Controles horizontales -->
+        <div class="controls-horizontal">
+            <div class="control-item">
+                <label>Columns</label>
+                <button class="control-btn" id="columns-btn">
+                    <span class="control-decrease">−</span>
+                    <span id="columns-value">5</span>
+                    <span class="control-increase">+</span>
+                </button>
+            </div>
+
+            <div class="control-item">
+                <label>Rows</label>
+                <button class="control-btn" id="rows-btn">
+                    <span class="control-decrease">−</span>
+                    <span id="rows-value">12</span>
+                    <span class="control-increase">+</span>
+                </button>
+            </div>
+
+            <div class="control-item">
+                <label>Gap(px)</label>
+                <button class="control-btn" id="gap-btn">
+                    <span class="control-decrease">−</span>
+                    <span id="gap-value">8</span>
+                    <span class="control-increase">+</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid wrapper -->
+        <div class="grid-wrapper">
+            <div id="grid-container" class="grid-container">
+                <!-- Las celdas se generarán dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Panel de código (oculto por defecto, se puede mostrar con un botón) -->
+        <div class="code-section">
+            <button id="toggle-code" class="toggle-code-btn">Show Code</button>
+            <div class="code-panel" id="code-panel" style="display: none;">
+                <div class="code-tabs">
+                    <button class="tab-btn active" data-tab="html">HTML</button>
+                    <button class="tab-btn" data-tab="css">CSS</button>
+                </div>
+                <div class="code-content">
+                    <pre id="html-code" class="code-block active"><code></code></pre>
+                    <pre id="css-code" class="code-block"><code></code></pre>
+                </div>
+                <button id="copy-code" class="btn-copy">Copy Code</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
