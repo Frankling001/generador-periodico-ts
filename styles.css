@@ -370,6 +370,12 @@ body {
     display: block;
 }
 
+/* Overlay cuando hay colisión detectada */
+.selection-overlay.occupied::before {
+    background: rgba(255, 100, 100, 0.35);
+    border: 2px dashed rgba(255, 50, 50, 0.7);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .controls-horizontal {

@@ -153,6 +153,76 @@ function updateGridStyles() {
     selectionOverlay.style.gap = gapStyle;
 }
 
+// Verificar si una posición está ocupada por otro elemento
+function isPositionOccupied(col, row, colSpan, rowSpan, excludeId = null) {
+    // Calcular el rango que ocuparía el elemento
+    const endCol = col + colSpan - 1;
+    const endRow = row + rowSpan - 1;
+
+    // Verificar contra cada elemento existente
+    for (const element of state.elements) {
+        // Saltar el elemento que estamos moviendo
+        if (excludeId !== null && element.id === excludeId) {
+            continue;
+        }
+
+        const elemEndCol = element.column + element.columnSpan - 1;
+        const elemEndRow = element.row + element.rowSpan - 1;
+
+        // Verificar si hay superposición
+        const overlapX = !(endCol < element.column || col > elemEndCol);
+        const overlapY = !(endRow < element.row || row > elemEndRow);
+
+        if (overlapX && overlapY) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// Encontrar la posición válida más cercana
+function findNearestValidPosition(targetCol, targetRow, colSpan, rowSpan, excludeId = null) {
+    // Si la posición objetivo es válida, usarla
+    if (!isPositionOccupied(targetCol, targetRow, colSpan, rowSpan, excludeId)) {
+        return { col: targetCol, row: targetRow };
+    }
+
+    // Buscar en espiral desde la posición objetivo
+    const maxDistance = Math.max(state.columns, state.rows);
+
+    for (let distance = 1; distance <= maxDistance; distance++) {
+        // Probar posiciones en orden de prioridad: derecha, abajo, izquierda, arriba
+        const positions = [
+            { col: targetCol + distance, row: targetRow }, // Derecha
+            { col: targetCol, row: targetRow + distance }, // Abajo
+            { col: targetCol - distance, row: targetRow }, // Izquierda
+            { col: targetCol, row: targetRow - distance }, // Arriba
+            { col: targetCol + distance, row: targetRow + distance }, // Diagonal abajo-derecha
+            { col: targetCol - distance, row: targetRow + distance }, // Diagonal abajo-izquierda
+            { col: targetCol + distance, row: targetRow - distance }, // Diagonal arriba-derecha
+            { col: targetCol - distance, row: targetRow - distance }, // Diagonal arriba-izquierda
+        ];
+
+        for (const pos of positions) {
+            // Verificar que esté dentro del grid
+            if (pos.col >= 1 && pos.row >= 1 &&
+                pos.col + colSpan - 1 <= state.columns &&
+                pos.row + rowSpan - 1 <= state.rows) {
+
+                // Verificar que no esté ocupada
+                if (!isPositionOccupied(pos.col, pos.row, colSpan, rowSpan, excludeId)) {
+                    return { col: pos.col, row: pos.row };
+                }
+            }
+        }
+    }
+
+    // Si no se encuentra ninguna posición válida, devolver la original
+    // (esto no debería ocurrir en un grid normal)
+    return { col: targetCol, row: targetRow };
+}
+
 // Obtener celda desde coordenadas del mouse
 function getCellFromPoint(x, y) {
     const cells = gridCells.querySelectorAll('.grid-cell');
@@ -404,16 +474,26 @@ function handleSelectionMove(e) {
             targetCol = Math.max(1, targetCol);
             targetRow = Math.max(1, targetRow);
 
-            // Actualizar posición del ghost solo si cambió
-            if (ghostPosition.col !== targetCol || ghostPosition.row !== targetRow) {
-                ghostPosition.col = targetCol;
-                ghostPosition.row = targetRow;
+            // Verificar si la posición objetivo está ocupada
+            const isOccupied = isPositionOccupied(targetCol, targetRow, element.columnSpan, element.rowSpan, elementId);
+
+            // Si está ocupada, buscar posición válida más cercana
+            const validPosition = isOccupied
+                ? findNearestValidPosition(targetCol, targetRow, element.columnSpan, element.rowSpan, elementId)
+                : { col: targetCol, row: targetRow };
+
+            // Actualizar posición del ghost
+            const positionChanged = ghostPosition.col !== validPosition.col || ghostPosition.row !== validPosition.row;
+
+            if (positionChanged) {
+                ghostPosition.col = validPosition.col;
+                ghostPosition.row = validPosition.row;
                 ghostPosition.colSpan = element.columnSpan;
                 ghostPosition.rowSpan = element.rowSpan;
-
-                // Mostrar ghost rosado en la posición objetivo
-                updateGhostOverlay();
             }
+
+            // Mostrar ghost rosado en la posición objetivo (rojo si hubo colisión)
+            updateGhostOverlay(isOccupied);
         }
         return;
     }
@@ -475,17 +555,36 @@ function handleSelectionEnd(e) {
     const colSpan = maxCol - minCol + 1;
     const rowSpan = maxRow - minRow + 1;
 
-    // Crear elemento directamente al soltar
-    const element = {
-        id: state.elementCounter++,
-        column: minCol,
-        row: minRow,
-        columnSpan: colSpan,
-        rowSpan: rowSpan
-    };
+    // Verificar si la posición está ocupada
+    if (isPositionOccupied(minCol, minRow, colSpan, rowSpan)) {
+        // Buscar posición válida más cercana
+        const validPosition = findNearestValidPosition(minCol, minRow, colSpan, rowSpan);
 
-    state.elements.push(element);
-    renderElement(element);
+        // Crear elemento en la posición válida
+        const element = {
+            id: state.elementCounter++,
+            column: validPosition.col,
+            row: validPosition.row,
+            columnSpan: colSpan,
+            rowSpan: rowSpan
+        };
+
+        state.elements.push(element);
+        renderElement(element);
+    } else {
+        // Crear elemento directamente al soltar
+        const element = {
+            id: state.elementCounter++,
+            column: minCol,
+            row: minRow,
+            columnSpan: colSpan,
+            rowSpan: rowSpan
+        };
+
+        state.elements.push(element);
+        renderElement(element);
+    }
+
     generateCode();
     hideSelectionOverlay();
 }
@@ -539,30 +638,52 @@ function updateSelectionOverlay() {
     const minRow = Math.min(state.selectionStart.row, state.selectionEnd.row);
     const maxRow = Math.max(state.selectionStart.row, state.selectionEnd.row);
 
+    const colSpan = maxCol - minCol + 1;
+    const rowSpan = maxRow - minRow + 1;
+
+    // Verificar si la posición está ocupada
+    const isOccupied = isPositionOccupied(minCol, minRow, colSpan, rowSpan);
+
     selectionOverlay.style.setProperty('--sel-col-start', minCol);
     selectionOverlay.style.setProperty('--sel-col-end', maxCol + 1);
     selectionOverlay.style.setProperty('--sel-row-start', minRow);
     selectionOverlay.style.setProperty('--sel-row-end', maxRow + 1);
     selectionOverlay.classList.add('active');
+
+    // Agregar clase "occupied" si la posición está ocupada
+    if (isOccupied) {
+        selectionOverlay.classList.add('occupied');
+    } else {
+        selectionOverlay.classList.remove('occupied');
+    }
 }
 
 // Ocultar overlay de selección
 function hideSelectionOverlay() {
     selectionOverlay.classList.remove('active');
+    selectionOverlay.classList.remove('occupied');
 }
 
 // Actualizar ghost overlay (para arrastre de elementos)
-function updateGhostOverlay() {
+function updateGhostOverlay(isOccupied = false) {
     selectionOverlay.style.setProperty('--sel-col-start', ghostPosition.col);
     selectionOverlay.style.setProperty('--sel-col-end', ghostPosition.col + ghostPosition.colSpan);
     selectionOverlay.style.setProperty('--sel-row-start', ghostPosition.row);
     selectionOverlay.style.setProperty('--sel-row-end', ghostPosition.row + ghostPosition.rowSpan);
     selectionOverlay.classList.add('active');
+
+    // Agregar clase "occupied" si la posición original estaba ocupada
+    if (isOccupied) {
+        selectionOverlay.classList.add('occupied');
+    } else {
+        selectionOverlay.classList.remove('occupied');
+    }
 }
 
 // Ocultar ghost overlay
 function hideGhostOverlay() {
     selectionOverlay.classList.remove('active');
+    selectionOverlay.classList.remove('occupied');
 }
 
 // Renderizar elemento en el grid
