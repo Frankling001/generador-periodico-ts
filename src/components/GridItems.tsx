@@ -1,8 +1,24 @@
 import React, { useEffect, useRef } from 'react'
 import { DEFAULT_COLOR } from '../utils/colors'
+import { GridElement } from '../types';
 
-function GridItems({ elements, draggedElement, dragOffset, onDeleteElement, onResizeStart, onUpdateElement, selectedElementId, columns, rows, gap, isNewspaperMode, style }) {
-  const itemRefs = useRef({})
+interface GridItemsProps {
+  elements: GridElement[];
+  draggedElement: { element: GridElement; elementId: number } | null
+  dragOffset: { x: number; y: number }
+  onDeleteElement: (id: number) => void
+  onResizeStart: (e: React.MouseEvent<HTMLDivElement>, element: GridElement) => void
+  onUpdateElement: (id: number, updates: Partial<GridElement>) => void
+  selectedElementId: number | null
+  columns: number
+  rows: number
+  gap: number
+  isNewspaperMode: boolean
+  style: React.CSSProperties
+}
+
+function GridItems({ elements, draggedElement, dragOffset, onDeleteElement, onResizeStart, onUpdateElement, selectedElementId, columns, rows, gap, isNewspaperMode, style }:GridItemsProps) {
+  const itemRefs = useRef<Record<number, HTMLDivElement|null>>({})
   const dragDimensionsRef = useRef({ width: 0, height: 0 })
 
   useEffect(() => {
@@ -60,7 +76,7 @@ function GridItems({ elements, draggedElement, dragOffset, onDeleteElement, onRe
   }, [draggedElement])
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e:MouseEvent) => {
       if (draggedElement) {
         const elementId = draggedElement.elementId
         const item = itemRefs.current[elementId]

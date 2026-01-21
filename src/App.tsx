@@ -1,3 +1,5 @@
+import { GridElement,TemplateData } from './types'
+
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import Controls from './components/Controls'
 import GridVisualizer from './components/GridVisualizer'
@@ -14,12 +16,12 @@ function App() {
   const [columns, setColumns] = useState(initialColumns)
   const [rows, setRows] = useState(initialRows)
   const [gap, setGap] = useState(initialGapMm) // Ahora en mm
-  const [elements, setElements] = useState([])
+  const [elements, setElements] = useState<GridElement[]>([])
   const [elementCounter, setElementCounter] = useState(1)
   const [showCode, setShowCode] = useState(false)
-  const [activeTab, setActiveTab] = useState('html')
+  const [activeTab, setActiveTab] = useState<'html' | 'css'>('html')
   const [isNewspaperMode, setIsNewspaperMode] = useState(true)
-  const [selectedElementId, setSelectedElementId] = useState(null)
+  const [selectedElementId, setSelectedElementId] = useState<number|null>(null);
 
   const updateGrid = useCallback(() => {
     // Filtrar elementos que están completamente fuera del grid
@@ -53,22 +55,22 @@ function App() {
     updateGrid()
   }, [columns, rows, updateGrid])
 
-  const handleAddElement = useCallback((newElement) => {
+  const handleAddElement = useCallback((newElement: Omit<GridElement, 'id'|'text'|'color'>) => {
     setElements(prev => [...prev, { ...newElement, id: elementCounter, text: '', color: '#ffffff' }])
     setElementCounter(prev => prev + 1)
   }, [elementCounter])
 
-  const handleUpdateElement = useCallback((id, updates) => {
+  const handleUpdateElement = useCallback((id:number, updates:Partial<GridElement>) => {
     setElements(prev => prev.map(el => 
       el.id === id ? { ...el, ...updates } : el
     ))
   }, [])
 
-  const handleDeleteElement = useCallback((id) => {
+  const handleDeleteElement = useCallback((id:number) => {
     setElements(prev => prev.filter(el => el.id !== id))
   }, [])
 
-  const handleLoadTemplate = useCallback((templateData) => {
+  const handleLoadTemplate = useCallback((templateData:TemplateData) => {
     setColumns(templateData.columns)
     setRows(templateData.rows)
     setGap(templateData.gap)
@@ -84,6 +86,10 @@ function App() {
     } else {
       setElementCounter(1)
     }
+  }, [])
+
+  const handleSelectElement = useCallback((id: number | null) => {
+    setSelectedElementId(id)
   }, [])
 
   const getCurrentTemplate = useCallback(() => {
@@ -135,9 +141,11 @@ function App() {
             gapMm={gap}
             isNewspaperMode={isNewspaperMode}
             elements={elements}
+            selectedElementId={selectedElementId}
             onAddElement={handleAddElement}
             onUpdateElement={handleUpdateElement}
             onDeleteElement={handleDeleteElement}
+            onSelectElement={handleSelectElement}
           />
 
           <CodePanel

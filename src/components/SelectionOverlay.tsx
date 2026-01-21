@@ -1,6 +1,18 @@
 import React from 'react'
+import { GhostPosition, GridElement } from '../types';
 
-function SelectionOverlay({ isSelecting, selectionStart, selectionEnd, ghostPosition, isPositionOccupied, draggedElement, style }) {
+interface SelectionOverlayProps {
+  isSelecting: boolean;
+  selectionStart: { col: number; row: number } | null;
+  selectionEnd: { col: number; row: number } | null;
+  ghostPosition: GhostPosition | null;
+  isPositionOccupied: (col: number, row: number, colSpan: number, rowSpan: number) => boolean;
+  draggedElement: { element: GridElement; elementId: number } | null; 
+  style?: React.CSSProperties;
+}
+
+
+function SelectionOverlay({ isSelecting, selectionStart, selectionEnd, ghostPosition, isPositionOccupied, draggedElement, style }:SelectionOverlayProps) {
   let overlayStyle = {}
   let isOccupied = false
 

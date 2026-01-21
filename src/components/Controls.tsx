@@ -1,24 +1,35 @@
 import React, { useState } from 'react'
 
-function Controls({ columns, rows, gap, isNewspaperMode, onColumnsChange, onRowsChange, onGapChange }) {
+interface ControlsProps {
+  columns: number
+  rows: number
+  gap: number
+  isNewspaperMode: boolean
+  onColumnsChange: (value: number) => void
+  onRowsChange: (value: number) => void
+  onGapChange: (value: number) => void
+}
+
+
+function Controls({ columns, rows, gap, isNewspaperMode, onColumnsChange, onRowsChange, onGapChange }:ControlsProps) {
   const [gapInputValue, setGapInputValue] = useState(gap.toString())
   const [isGapEditing, setIsGapEditing] = useState(false)
 
-  const handleDecrease = (property, min, onChange) => {
+  const handleDecrease = (property: 'columns' | 'rows', min: number, onChange: (value: number) => void) => {
     const currentValue = property === 'columns' ? columns : rows
     if (currentValue > min) {
       onChange(currentValue - 1)
     }
   }
 
-  const handleIncrease = (property, max, onChange) => {
+  const handleIncrease = (property: 'columns' | 'rows', max: number, onChange: (value: number) => void) => {
     const currentValue = property === 'columns' ? columns : rows
     if (currentValue < max) {
       onChange(currentValue + 1)
     }
   }
 
-  const handleGapInputChange = (e) => {
+  const handleGapInputChange = (e:React.ChangeEvent<HTMLInputElement>) => {
     setGapInputValue(e.target.value)
   }
 
@@ -34,13 +45,13 @@ function Controls({ columns, rows, gap, isNewspaperMode, onColumnsChange, onRows
     setIsGapEditing(false)
   }
 
-  const handleGapInputKeyPress = (e) => {
+  const handleGapInputKeyPress = (e:React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleGapInputBlur()
     }
   }
 
-  const formatGapValue = (value) => {
+  const formatGapValue = (value:number | string) => {
     const num = typeof value === 'number' ? value : parseFloat(value)
     if (isNaN(num)) return '0.000'
     return num.toFixed(3)
@@ -72,13 +83,22 @@ function Controls({ columns, rows, gap, isNewspaperMode, onColumnsChange, onRows
     onGapChange(newValue)
   }
 
-  const ControlButton = ({ label, value, property, min, max, onChange }) => {
-    const handleDecreaseClick = (e) => {
+  interface ControlButtonProps {
+  label: string
+  value: number
+  property: 'columns' | 'rows'
+  min: number
+  max: number
+  onChange: (value: number) => void
+}
+
+  const ControlButton = ({ label, value, property, min, max, onChange }:ControlButtonProps) => {
+    const handleDecreaseClick = (e:React.MouseEvent<HTMLSpanElement>) => {
       e.stopPropagation()
       handleDecrease(property, min, onChange)
     }
 
-    const handleIncreaseClick = (e) => {
+    const handleIncreaseClick = (e:React.MouseEvent<HTMLSpanElement>) => {
       e.stopPropagation()
       handleIncrease(property, max, onChange)
     }

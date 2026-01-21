@@ -57,17 +57,17 @@ export function calculateRows() {
 }
 
 // Convertir mm a px para visualización
-export function mmToPx(mm) {
+export function mmToPx(mm:number) {
   return mm * NEWSPAPER_CONFIG.mmToPx
 }
 
 // Convertir px a mm
-export function pxToMm(px) {
+export function pxToMm(px:number) {
   return px / NEWSPAPER_CONFIG.mmToPx
 }
 
 // Calcular ancho de columna en mm
-export function getColumnWidthMm(columns) {
+export function getColumnWidthMm(columns:number) {
   const { width } = getUsefulArea()
   const gap = NEWSPAPER_CONFIG.columnGap
   return (width - (columns - 1) * gap) / columns

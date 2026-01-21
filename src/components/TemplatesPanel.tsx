@@ -1,10 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { COLOR_PALETTE } from '../utils/colors'
+import { GridElement, TemplateData } from '../types'
 
-function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, onUpdateElement }) {
-  const [templates, setTemplates] = useState([])
-  const [templateName, setTemplateName] = useState('')
-  const [activeSection, setActiveSection] = useState('plantillas')
+interface StoredTemplate {
+  id: number;
+  name: string;
+  data: TemplateData;
+  createdAt: string;
+}
+
+interface TemplatesPanelProps {
+  onLoadTemplate: (data: TemplateData) => void;
+  currentTemplate: TemplateData;
+  selectedElementId: number | null;
+  onUpdateElement: (id: number, updates: Partial<GridElement>) => void;
+}
+
+function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, onUpdateElement }: TemplatesPanelProps) {
+  const [templates, setTemplates] = useState<StoredTemplate[]>([])
+  const [templateName, setTemplateName] = useState<string>('')
+  const [activeSection, setActiveSection] = useState<'plantillas' | 'herramientas'>('plantillas')
 
   // Cargar plantillas del localStorage al montar
   useEffect(() => {
@@ -48,7 +63,7 @@ function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, on
     }
   }
 
-  const deleteTemplate = (id, e) => {
+  const deleteTemplate = (id:number, e:React.MouseEvent) => {
     e.stopPropagation()
     if (confirm('¿Estás seguro de que deseas eliminar esta plantilla?')) {
       const updatedTemplates = templates.filter(t => t.id !== id)
@@ -62,11 +77,11 @@ function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, on
     }
   }
 
-  const handleLoadTemplate = (template) => {
+  const handleLoadTemplate = (template:StoredTemplate) => {
     onLoadTemplate(template.data)
   }
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString:string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('es-ES', {
       day: '2-digit',
@@ -77,7 +92,7 @@ function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, on
     })
   }
 
-  const handleColorSelect = (colorValue, e) => {
+  const handleColorSelect = (colorValue:string, e?:React.MouseEvent | React.FormEvent) => {
     e?.stopPropagation()
     e?.preventDefault()
     if (selectedElementId && onUpdateElement) {

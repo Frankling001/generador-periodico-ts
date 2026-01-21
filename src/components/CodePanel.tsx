@@ -1,6 +1,19 @@
 import React, { useMemo } from 'react'
+import { GridElement } from '../types'
 
-function CodePanel({ showCode, activeTab, columns, rows, gap, isNewspaperMode, elements, onToggleCode, onTabChange }) {
+interface CodePanelProps {
+  showCode: boolean
+  activeTab: 'html' | 'css'
+  columns: number
+  rows: number
+  gap: number
+  isNewspaperMode: boolean
+  elements: GridElement[]
+  onToggleCode: () => void
+  onTabChange: (tab: 'html' | 'css') => void
+}
+
+function CodePanel({ showCode, activeTab, columns, rows, gap, isNewspaperMode, elements, onToggleCode, onTabChange }:CodePanelProps) {
   const htmlCode = useMemo(() => {
     let html = '<div class="grid-container">\n'
     elements.forEach(element => {

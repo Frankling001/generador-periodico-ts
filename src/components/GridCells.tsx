@@ -1,6 +1,13 @@
 import React, { forwardRef } from 'react'
 
-const GridCells = forwardRef(({ columns, rows, style }, ref) => {
+interface GridCellsProps {
+  columns: number;
+  rows: number;
+  style: React.CSSProperties;
+
+}
+
+const GridCells = forwardRef<HTMLDivElement, GridCellsProps>(({ columns, rows, style }, ref) => {
   const cells = []
   const totalCells = columns * rows
 

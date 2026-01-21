@@ -1,23 +1,38 @@
+import {GridElement, GhostPosition} from '../types'
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import GridCells from './GridCells'
 import GridItems from './GridItems'
 import SelectionOverlay from './SelectionOverlay'
 
-function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, onAddElement, onUpdateElement, onDeleteElement, selectedElementId, onSelectElement }) {
-  const [isSelecting, setIsSelecting] = useState(false)
-  const [selectionStart, setSelectionStart] = useState(null)
-  const [selectionEnd, setSelectionEnd] = useState(null)
-  const [draggedElement, setDraggedElement] = useState(null)
-  const [resizingElement, setResizingElement] = useState(null)
-  const [ghostPosition, setGhostPosition] = useState(null)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [resizeStart, setResizeStart] = useState(null)
+interface GridVisualizerProps {
+  columns: number;
+  rows: number;
+  gap: number;
+  gapMm: number;
+  isNewspaperMode: boolean;
+  elements: GridElement[];
+  onAddElement: (el: Omit<GridElement, 'id' | 'text' | 'color'>) => void;
+  onUpdateElement: (id: number, updates: Partial<GridElement>) => void;
+  onDeleteElement: (id: number) => void;
+  selectedElementId: number | null;
+  onSelectElement?: (id: number) => void;
+}
 
-  const gridCellsRef = useRef(null)
-  const gridMainRef = useRef(null)
+function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, onAddElement, onUpdateElement, onDeleteElement, selectedElementId, onSelectElement }:GridVisualizerProps) {
+  const [isSelecting, setIsSelecting] = useState<boolean>(false)
+  const [selectionStart, setSelectionStart] = useState<{col:number,row:number} | null>(null)
+  const [selectionEnd, setSelectionEnd] = useState<{col:number,row:number} | null>(null)
+  const [draggedElement, setDraggedElement] = useState<{ element: GridElement; elementId: number } | null>(null)
+  const [resizingElement, setResizingElement] = useState<GridElement | null>(null)
+  const [ghostPosition, setGhostPosition] = useState<GhostPosition|null>(null)
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+  const [resizeStart, setResizeStart] = useState<{ x: number; y: number; colSpan: number; rowSpan: number } | null>(null)
+
+  const gridCellsRef = useRef<HTMLDivElement>(null)
+  const gridMainRef = useRef<HTMLDivElement>(null)
 
   // Verificar si una posición está ocupada
-  const isPositionOccupied = useCallback((col, row, colSpan, rowSpan, excludeId = null) => {
+  const isPositionOccupied = useCallback((col:number, row:number, colSpan:number, rowSpan:number, excludeId:number|null = null):boolean => {
     const endCol = col + colSpan - 1
     const endRow = row + rowSpan - 1
 
@@ -41,7 +56,7 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
   }, [elements])
 
   // Encontrar la posición válida más cercana
-  const findNearestValidPosition = useCallback((targetCol, targetRow, colSpan, rowSpan, excludeId = null) => {
+  const findNearestValidPosition = useCallback((targetCol:number, targetRow:number, colSpan:number, rowSpan:number, excludeId:number|null = null) => {
     if (!isPositionOccupied(targetCol, targetRow, colSpan, rowSpan, excludeId)) {
       return { col: targetCol, row: targetRow }
     }
@@ -75,16 +90,16 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
   }, [columns, rows, isPositionOccupied])
 
   // Obtener celda desde coordenadas
-  const getCellFromPoint = useCallback((x, y) => {
+  const getCellFromPoint = useCallback((x:number, y:number) => {
     if (!gridCellsRef.current) return null
 
-    const cells = gridCellsRef.current.querySelectorAll('.grid-cell')
+    const cells = gridCellsRef.current.querySelectorAll<HTMLElement>('.grid-cell')
     for (let cell of cells) {
       const rect = cell.getBoundingClientRect()
       if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
         return {
-          col: parseInt(cell.dataset.col),
-          row: parseInt(cell.dataset.row),
+          col: parseInt(cell.dataset.col ||'0'),
+          row: parseInt(cell.dataset.row ||'0'),
           element: cell
         }
       }
@@ -93,7 +108,7 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
   }, [])
 
   // Obtener celda desde coordenadas usando cálculo directo
-  const getCellFromPointCalculated = useCallback((x, y) => {
+  const getCellFromPointCalculated = useCallback((x:number, y:number) => {
     if (!gridCellsRef.current) return null
 
     const gridRect = gridCellsRef.current.getBoundingClientRect()
@@ -167,22 +182,23 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
   }, [columns, rows, gap])
 
   // Iniciar selección
-  const handleSelectionStart = useCallback((e) => {
-    if (e.target.closest('.grid-item')) {
-      const item = e.target.closest('.grid-item')
-      if (e.target.classList.contains('delete-btn')) {
+  const handleSelectionStart = useCallback((e:React.MouseEvent<HTMLDivElement>) => {
+    
+    const target = e.target as HTMLElement
+    const item = target.closest('.grid-item') as HTMLElement |null
+    if (item) {
+      if (target.classList.contains('delete-btn')) {
         return
       }
-      if (e.target.classList.contains('resize-handle')) {
-        // El resize se maneja en GridItems
+      if (target.classList.contains('resize-handle')) {
         return
       }
 
-      const elementId = parseInt(item.dataset.id)
+      const elementId = parseInt(item.dataset.id || '0')
       const element = elements.find(el => el.id === elementId)
 
       if (element) {
-        // Seleccionar el elemento
+
         if (onSelectElement) {
           onSelectElement(elementId)
         }
@@ -196,7 +212,8 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
           col: element.column,
           row: element.row,
           colSpan: element.columnSpan,
-          rowSpan: element.rowSpan
+          rowSpan: element.rowSpan,
+          isOccupied:false
         })
         setDraggedElement({ element, elementId })
       }
@@ -212,7 +229,7 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
   }, [elements, getCellFromPoint])
 
   // Mover selección
-  const handleSelectionMove = useCallback((e) => {
+  const handleSelectionMove = useCallback((e:MouseEvent) => {
     if (resizingElement && resizeStart) {
       const deltaX = e.clientX - resizeStart.x
       const deltaY = e.clientY - resizeStart.y
@@ -338,7 +355,7 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
   }, [draggedElement, resizingElement, resizeStart, dragOffset, gap, columns, rows, isSelecting, isPositionOccupied, findNearestValidPosition, getCellFromPoint, onUpdateElement])
 
   // Finalizar selección
-  const handleSelectionEnd = useCallback((e) => {
+  const handleSelectionEnd = useCallback((e:MouseEvent) => {
     if (resizingElement) {
       setResizingElement(null)
       setResizeStart(null)
@@ -416,11 +433,11 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
 
   // Event listeners globales para mouse
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e:MouseEvent) => {
       handleSelectionMove(e)
     }
 
-    const handleMouseUp = (e) => {
+    const handleMouseUp = (e:MouseEvent) => {
       handleSelectionEnd(e)
     }
 
@@ -465,7 +482,7 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
           selectedElementId={selectedElementId}
           onDeleteElement={onDeleteElement}
           onUpdateElement={onUpdateElement}
-          onResizeStart={(e, element) => {
+          onResizeStart={(e:React.MouseEvent<HTMLDivElement>, element:GridElement) => {
             setResizingElement(element)
             setResizeStart({
               x: e.clientX,
