@@ -1,6 +1,8 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import { DEFAULT_COLOR } from '../utils/colors'
-import { GridElement } from '../types';
+import { GridElement } from '../types'
+
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024 // 2MB
 
 interface GridItemsProps {
   elements: GridElement[];
@@ -20,6 +22,44 @@ interface GridItemsProps {
 function GridItems({ elements, draggedElement, dragOffset, onDeleteElement, onResizeStart, onUpdateElement, selectedElementId, columns, rows, gap, isNewspaperMode, style }:GridItemsProps) {
   const itemRefs = useRef<Record<number, HTMLDivElement|null>>({})
   const dragDimensionsRef = useRef({ width: 0, height: 0 })
+  const fileInputRefs = useRef<Record<number, HTMLInputElement|null>>({})
+
+  const handleImageUpload = useCallback((elementId: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validar tamaño
+    if (file.size > MAX_IMAGE_SIZE) {
+      alert('La imagen es demasiado grande. El límite es 2MB.')
+      return
+    }
+
+    // Validar formato
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      alert('Formato no soportado. Usa JPG, PNG, GIF o WebP.')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      onUpdateElement(elementId, { image: event.target?.result as string })
+    }
+    reader.readAsDataURL(file)
+
+    // Limpiar input para permitir subir la misma imagen de nuevo
+    e.target.value = ''
+  }, [onUpdateElement])
+
+  const handleRemoveImage = useCallback((elementId: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    onUpdateElement(elementId, { image: undefined })
+  }, [onUpdateElement])
+
+  const triggerImageUpload = useCallback((elementId: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    fileInputRefs.current[elementId]?.click()
+  }, [])
 
   useEffect(() => {
     if (draggedElement) {
@@ -109,16 +149,28 @@ function GridItems({ elements, draggedElement, dragOffset, onDeleteElement, onRe
         <div
           key={element.id}
           ref={el => itemRefs.current[element.id] = el}
-          className="grid-item"
+          className={`grid-item${element.image ? ' has-image' : ''}`}
           data-id={element.id}
           style={{
             gridColumn: `${element.column} / span ${element.columnSpan}`,
             gridRow: `${element.row} / span ${element.rowSpan}`,
             backgroundColor: element.color || DEFAULT_COLOR,
+            backgroundImage: element.image ? `url(${element.image})` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
             outline: selectedElementId === element.id && draggedElement?.elementId !== element.id ? '3px solid #2b2b2b' : 'none',
             outlineOffset: '-2px'
           }}
         >
+          {/* Input oculto para subir imagen */}
+          <input
+            type="file"
+            ref={el => fileInputRefs.current[element.id] = el}
+            style={{ display: 'none' }}
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            onChange={(e) => handleImageUpload(element.id, e)}
+          />
+
           {isNewspaperMode ? (
             <>
               <textarea
@@ -132,7 +184,25 @@ function GridItems({ elements, draggedElement, dragOffset, onDeleteElement, onRe
                 placeholder="Escribe tu contenido aquí..."
                 onClick={(e) => e.stopPropagation()}
               />
-              <button 
+              {/* Botón de imagen */}
+              {element.image ? (
+                <button
+                  className="image-btn remove-image-btn"
+                  onClick={(e) => handleRemoveImage(element.id, e)}
+                  title="Eliminar imagen"
+                >
+                  ✕
+                </button>
+              ) : (
+                <button
+                  className="image-btn"
+                  onClick={(e) => triggerImageUpload(element.id, e)}
+                  title="Agregar imagen"
+                >
+                  🖼️
+                </button>
+              )}
+              <button
                 className="delete-btn"
                 onClick={(e) => {
                   e.stopPropagation()
@@ -141,7 +211,7 @@ function GridItems({ elements, draggedElement, dragOffset, onDeleteElement, onRe
               >
                 ×
               </button>
-              <div 
+              <div
                 className="resize-handle"
                 onMouseDown={(e) => {
                   e.stopPropagation()
@@ -152,7 +222,25 @@ function GridItems({ elements, draggedElement, dragOffset, onDeleteElement, onRe
           ) : (
             <>
               <span className="item-number">{element.id}</span>
-              <button 
+              {/* Botón de imagen en modo no-periódico */}
+              {element.image ? (
+                <button
+                  className="image-btn remove-image-btn"
+                  onClick={(e) => handleRemoveImage(element.id, e)}
+                  title="Eliminar imagen"
+                >
+                  ✕
+                </button>
+              ) : (
+                <button
+                  className="image-btn"
+                  onClick={(e) => triggerImageUpload(element.id, e)}
+                  title="Agregar imagen"
+                >
+                  🖼️
+                </button>
+              )}
+              <button
                 className="delete-btn"
                 onClick={(e) => {
                   e.stopPropagation()
@@ -161,7 +249,7 @@ function GridItems({ elements, draggedElement, dragOffset, onDeleteElement, onRe
               >
                 ×
               </button>
-              <div 
+              <div
                 className="resize-handle"
                 onMouseDown={(e) => {
                   e.stopPropagation()

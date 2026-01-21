@@ -105,7 +105,8 @@ function App() {
         columnSpan: el.columnSpan,
         rowSpan: el.rowSpan,
         text: el.text || '',
-        color: el.color || '#ffffff'
+        color: el.color || '#ffffff',
+        image: el.image // Incluir imagen para persistencia en plantillas
       }))
     }
   }, [columns, rows, gap, elements, isNewspaperMode])
@@ -167,6 +168,11 @@ function App() {
         currentTemplate={getCurrentTemplate()}
         selectedElementId={selectedElementId}
         onUpdateElement={handleUpdateElement}
+        columns={columns}
+        rows={rows}
+        gap={gap}
+        elements={elements}
+        isNewspaperMode={isNewspaperMode}
       />
     </div>
   )

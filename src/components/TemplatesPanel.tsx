@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { COLOR_PALETTE } from '../utils/colors'
 import { GridElement, TemplateData } from '../types'
+import ExportPDFButton from './ExportPDFButton'
 
 interface StoredTemplate {
   id: number;
@@ -14,9 +15,14 @@ interface TemplatesPanelProps {
   currentTemplate: TemplateData;
   selectedElementId: number | null;
   onUpdateElement: (id: number, updates: Partial<GridElement>) => void;
+  columns: number;
+  rows: number;
+  gap: number;
+  elements: GridElement[];
+  isNewspaperMode: boolean;
 }
 
-function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, onUpdateElement }: TemplatesPanelProps) {
+function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, onUpdateElement, columns, rows, gap, elements, isNewspaperMode }: TemplatesPanelProps) {
   const [templates, setTemplates] = useState<StoredTemplate[]>([])
   const [templateName, setTemplateName] = useState<string>('')
   const [activeSection, setActiveSection] = useState<'plantillas' | 'herramientas'>('plantillas')
@@ -230,7 +236,7 @@ function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, on
           <div className="tools-color-palette">
             <h3>Paleta de colores</h3>
             <p className="tools-hint">
-              {selectedElementId 
+              {selectedElementId
                 ? 'Selecciona un color para aplicar al elemento seleccionado'
                 : 'Selecciona un elemento del grid para cambiar su color'}
             </p>
@@ -247,6 +253,20 @@ function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, on
                 />
               ))}
             </div>
+          </div>
+
+          <div className="tools-export-section">
+            <h3>Exportar</h3>
+            <p className="tools-hint">
+              Exporta el grid actual como documento PDF con las dimensiones exactas.
+            </p>
+            <ExportPDFButton
+              columns={columns}
+              rows={rows}
+              gap={gap}
+              elements={elements}
+              isNewspaperMode={isNewspaperMode}
+            />
           </div>
         </div>
       )}

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { GridElement } from '../types'
+import ExportPDFButton from './ExportPDFButton'
 
 interface CodePanelProps {
   showCode: boolean
@@ -18,8 +19,21 @@ function CodePanel({ showCode, activeTab, columns, rows, gap, isNewspaperMode, e
     let html = '<div class="grid-container">\n'
     elements.forEach(element => {
       const text = element.text || ''
-      if (isNewspaperMode && text) {
-        html += `  <div class="grid-item item-${element.id}">${text.replace(/\n/g, '<br>')}</div>\n`
+      const hasImage = !!element.image
+
+      if (isNewspaperMode) {
+        if (hasImage && text) {
+          // Imagen con texto overlay
+          html += `  <div class="grid-item item-${element.id}">\n`
+          html += `    <span class="item-text">${text.replace(/\n/g, '<br>')}</span>\n`
+          html += `  </div>\n`
+        } else if (text) {
+          // Solo texto
+          html += `  <div class="grid-item item-${element.id}">${text.replace(/\n/g, '<br>')}</div>\n`
+        } else {
+          // Solo imagen o vacío
+          html += `  <div class="grid-item item-${element.id}"></div>\n`
+        }
       } else {
         html += `  <div class="grid-item item-${element.id}">Elemento ${element.id}</div>\n`
       }
@@ -55,8 +69,24 @@ function CodePanel({ showCode, activeTab, columns, rows, gap, isNewspaperMode, e
         if (element.color && element.color !== '#ffffff') {
           css += `  background-color: ${element.color};\n`
         }
+        if (element.image) {
+          css += `  background-image: url('${element.image}');\n`
+          css += `  background-size: cover;\n`
+          css += `  background-position: center;\n`
+        }
         css += '}\n\n'
       })
+
+      // Agregar estilos para texto sobre imagen
+      const hasElementsWithImageAndText = elements.some(el => el.image && el.text)
+      if (hasElementsWithImageAndText) {
+        css += `.item-text {\n`
+        css += `  background: rgba(255, 255, 255, 0.85);\n`
+        css += `  padding: 8px 12px;\n`
+        css += `  border-radius: 4px;\n`
+        css += `  display: inline-block;\n`
+        css += `}\n\n`
+      }
     }
     return css
   }, [columns, rows, gap, elements, isNewspaperMode])
@@ -79,9 +109,18 @@ function CodePanel({ showCode, activeTab, columns, rows, gap, isNewspaperMode, e
 
   return (
     <div className="code-section">
-      <button className="toggle-code-btn" onClick={onToggleCode}>
-        {showCode ? 'Ocultar Código' : 'Mostrar Código'}
-      </button>
+      <div className="code-actions">
+        <button className="toggle-code-btn" onClick={onToggleCode}>
+          {showCode ? 'Ocultar Código' : 'Mostrar Código'}
+        </button>
+        <ExportPDFButton
+          columns={columns}
+          rows={rows}
+          gap={gap}
+          elements={elements}
+          isNewspaperMode={isNewspaperMode}
+        />
+      </div>
       {showCode && (
         <div className="code-panel">
           <div className="code-tabs">

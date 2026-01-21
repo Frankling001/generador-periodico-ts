@@ -345,6 +345,60 @@ body {
     border-bottom-right-radius: 10px;
 }
 
+/* Botón de imagen */
+.grid-item .image-btn {
+    position: absolute;
+    top: 5px;
+    right: 32px;
+    width: 22px;
+    height: 22px;
+    background: rgba(43, 43, 43, 0.1);
+    border: 1px solid rgba(43, 43, 43, 0.2);
+    border-radius: 50%;
+    color: #2b2b2b;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    transition: all 0.2s ease;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.grid-item:hover .image-btn {
+    opacity: 1;
+}
+
+.grid-item .image-btn:hover {
+    background: #3498db;
+    border-color: #3498db;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Botón de eliminar imagen */
+.grid-item .remove-image-btn {
+    background: rgba(231, 76, 60, 0.2);
+    border-color: rgba(231, 76, 60, 0.4);
+}
+
+.grid-item .remove-image-btn:hover {
+    background: #e74c3c;
+    border-color: #e74c3c;
+    color: white;
+}
+
+/* Texto sobre imagen */
+.grid-item.has-image .grid-item-text {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 4px;
+    margin: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+}
+
 .tools-section {
     padding: 20px;
     overflow-y: auto;
@@ -747,6 +801,264 @@ body {
     min-height: 0;
     min-width: 0;
     border-radius: 2px;
+}
+
+/* Code actions container */
+.code-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Export PDF Button */
+.export-pdf-btn {
+    background: #2b2b2b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 30px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.export-pdf-btn:hover {
+    background: #3a3a3a;
+}
+
+/* PDF Modal */
+.pdf-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.pdf-modal {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.pdf-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.pdf-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2b2b2b;
+}
+
+.pdf-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.pdf-modal-close:hover {
+    color: #2b2b2b;
+}
+
+.pdf-modal-content {
+    padding: 25px;
+}
+
+.pdf-option-group {
+    margin-bottom: 20px;
+}
+
+.pdf-option-group > label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2b2b2b;
+    margin-bottom: 12px;
+}
+
+.pdf-size-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pdf-size-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 10px 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.pdf-size-option:hover {
+    border-color: #2b2b2b;
+    background: #fafafa;
+}
+
+.pdf-size-option input[type="radio"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.pdf-size-option input[type="radio"]:checked + span {
+    font-weight: 500;
+    color: #2b2b2b;
+}
+
+.pdf-size-option span {
+    font-size: 14px;
+    color: #666;
+}
+
+.pdf-custom-size {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 8px;
+}
+
+.pdf-custom-input {
+    flex: 1;
+}
+
+.pdf-custom-input label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.pdf-custom-input input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.pdf-custom-input input:focus {
+    border-color: #2b2b2b;
+}
+
+.pdf-custom-separator {
+    font-size: 18px;
+    color: #999;
+    padding-bottom: 10px;
+}
+
+.pdf-info {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f0f8ff;
+    border-radius: 8px;
+    border-left: 3px solid #3498db;
+}
+
+.pdf-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #2b2b2b;
+}
+
+.pdf-info-hint {
+    margin-top: 5px !important;
+    font-size: 12px !important;
+    color: #666 !important;
+}
+
+.pdf-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 25px;
+    border-top: 1px solid #e5e5e5;
+    background: #fafafa;
+}
+
+.pdf-cancel-btn {
+    background: transparent;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pdf-cancel-btn:hover {
+    border-color: #999;
+    color: #2b2b2b;
+}
+
+.pdf-export-btn {
+    background: #2b2b2b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 25px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pdf-export-btn:hover {
+    background: #3a3a3a;
+}
+
+.pdf-export-btn:disabled {
+    background: #999;
+    cursor: not-allowed;
+}
+
+/* Export section in tools panel */
+.tools-export-section {
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.tools-export-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2b2b2b;
+    margin: 0 0 10px 0;
+}
+
+.tools-export-section .export-pdf-btn {
+    width: 100%;
+    margin-top: 10px;
 }
 
 /* Responsive */

@@ -6,6 +6,7 @@ export interface GridElement {
   rowSpan: number;
   text: string;
   color: string;
+  image?: string;  // Base64 data URL
 }
 
 export interface TemplateData {
@@ -22,4 +23,15 @@ export interface GhostPosition {
   colSpan: number;
   rowSpan: number;
   isOccupied: boolean;
+}
+
+export type PageSize = 'newspaper' | 'a4' | 'letter' | 'custom';
+
+export interface PDFConfig {
+  elements: GridElement[];
+  columns: number;
+  rows: number;
+  gap: number;
+  pageSize: PageSize;
+  customSize?: { width: number; height: number };
 }
