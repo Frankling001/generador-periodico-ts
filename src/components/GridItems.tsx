@@ -57,6 +57,7 @@ function GridItems({ elements, draggedElement, dragOffset, onDeleteElement, onRe
   }, [onUpdateElement])
 
   const triggerImageUpload = useCallback((elementId: number, e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     fileInputRefs.current[elementId]?.click()
   }, [])

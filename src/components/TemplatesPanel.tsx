@@ -268,6 +268,7 @@ function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, on
               isNewspaperMode={isNewspaperMode}
             />
           </div>
+
         </div>
       )}
     </div>

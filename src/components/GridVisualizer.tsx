@@ -193,6 +193,9 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
       if (target.classList.contains('resize-handle')) {
         return
       }
+      if (target.classList.contains('image-btn')) {
+        return
+      }
 
       const elementId = parseInt(item.dataset.id || '0')
       const element = elements.find(el => el.id === elementId)

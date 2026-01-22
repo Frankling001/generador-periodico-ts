@@ -12,7 +12,7 @@ function App() {
   const initialColumns = calculateColumns()
   const initialRows = calculateRows()
   const initialGapMm = NEWSPAPER_CONFIG.columnGap
-  
+
   const [columns, setColumns] = useState(initialColumns)
   const [rows, setRows] = useState(initialRows)
   const [gap, setGap] = useState(initialGapMm) // Ahora en mm
@@ -61,7 +61,7 @@ function App() {
   }, [elementCounter])
 
   const handleUpdateElement = useCallback((id:number, updates:Partial<GridElement>) => {
-    setElements(prev => prev.map(el => 
+    setElements(prev => prev.map(el =>
       el.id === id ? { ...el, ...updates } : el
     ))
   }, [])
@@ -110,7 +110,7 @@ function App() {
       }))
     }
   }, [columns, rows, gap, elements, isNewspaperMode])
-  
+
   // Calcular gap en px para visualización
   const gapPx = isNewspaperMode ? mmToPx(gap) : gap
 
