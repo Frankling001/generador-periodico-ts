@@ -18,9 +18,10 @@ interface GridVisualizerProps {
   selectedElementId: number | null;
   onSelectElement?: (id: number) => void;
   showGuides?: boolean;
+  editorMode?: 'edit' | 'preview';
 }
 
-function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, onAddElement, onUpdateElement, onDeleteElement, selectedElementId, onSelectElement, showGuides = true }:GridVisualizerProps) {
+function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, onAddElement, onUpdateElement, onDeleteElement, selectedElementId, onSelectElement, showGuides = true, editorMode = 'edit' }:GridVisualizerProps) {
   const [isSelecting, setIsSelecting] = useState<boolean>(false)
   const [selectionStart, setSelectionStart] = useState<{col:number,row:number} | null>(null)
   const [selectionEnd, setSelectionEnd] = useState<{col:number,row:number} | null>(null)
@@ -493,6 +494,7 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
           selectedElementId={selectedElementId}
           onDeleteElement={onDeleteElement}
           onUpdateElement={onUpdateElement}
+          editorMode={editorMode}
           onResizeStart={(e:React.MouseEvent<HTMLDivElement>, element:GridElement) => {
             setResizingElement(element)
             setResizeStart({

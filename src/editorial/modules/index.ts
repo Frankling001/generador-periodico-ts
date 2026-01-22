@@ -1,0 +1,5 @@
+export { default as HeadlineModule } from './HeadlineModule'
+export { default as SubheadlineModule } from './SubheadlineModule'
+export { default as BodyTextModule } from './BodyTextModule'
+export { default as ImageModule } from './ImageModule'
+export { default as CaptionModule } from './CaptionModule'

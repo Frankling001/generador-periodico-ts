@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { COLOR_PALETTE } from '../utils/colors'
-import { GridElement, TemplateData } from '../types'
+import { GridElement, TemplateData, ModuleType } from '../types'
 import ExportPDFButton from './ExportPDFButton'
+
+const MODULE_TYPES: { value: ModuleType; label: string; description: string }[] = [
+  { value: 'generic', label: 'Genérico', description: 'Elemento básico con texto libre' },
+  { value: 'headline', label: 'Titular', description: 'Título principal de la noticia' },
+  { value: 'subheadline', label: 'Bajada', description: 'Subtítulo o entradilla' },
+  { value: 'body', label: 'Cuerpo', description: 'Texto principal de la noticia' },
+  { value: 'image', label: 'Imagen', description: 'Fotografía o ilustración' },
+  { value: 'caption', label: 'Pie de foto', description: 'Descripción de la imagen' },
+]
 
 interface StoredTemplate {
   id: number;
@@ -252,6 +261,39 @@ function TemplatesPanel({ onLoadTemplate, currentTemplate, selectedElementId, on
                   title={color.name}
                 />
               ))}
+            </div>
+          </div>
+
+          <div className="tools-module-type">
+            <h3>Tipo de módulo</h3>
+            <p className="tools-hint">
+              {selectedElementId
+                ? 'Define el tipo de contenido editorial del elemento'
+                : 'Selecciona un elemento para definir su tipo'}
+            </p>
+            <div className="module-type-list">
+              {MODULE_TYPES.map(moduleType => {
+                const selectedElement = elements.find(el => el.id === selectedElementId)
+                const currentType = selectedElement?.moduleType || 'generic'
+                const isActive = currentType === moduleType.value
+
+                return (
+                  <button
+                    key={moduleType.value}
+                    className={`module-type-btn ${isActive ? 'active' : ''} ${!selectedElementId ? 'disabled' : ''}`}
+                    onClick={() => {
+                      if (selectedElementId) {
+                        onUpdateElement(selectedElementId, { moduleType: moduleType.value })
+                      }
+                    }}
+                    disabled={!selectedElementId}
+                    title={moduleType.description}
+                  >
+                    <span className="module-type-label">{moduleType.label}</span>
+                    <span className="module-type-desc">{moduleType.description}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
 

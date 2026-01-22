@@ -758,6 +758,223 @@ body {
     border: 1px dashed rgba(220, 53, 69, 0.5);
 }
 
+/* ============================================
+   Módulos Editoriales - Estilos de Prensa
+   ============================================ */
+
+/* Base para todos los módulos editoriales */
+.editorial-module {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Titular Principal */
+.headline-module {
+    padding: 8px 12px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.headline-text {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #1a1a1a;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.headline-editable {
+    width: 100%;
+    min-height: 40px;
+    outline: none;
+    cursor: text;
+}
+
+.headline-editable:empty::before {
+    content: attr(data-placeholder);
+    color: #999;
+    font-style: italic;
+}
+
+/* Bajada / Subtítulo */
+.subheadline-module {
+    padding: 4px 12px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.subheadline-text {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #444;
+    margin: 0;
+}
+
+.subheadline-editable {
+    width: 100%;
+    min-height: 24px;
+    outline: none;
+    cursor: text;
+}
+
+.subheadline-editable:empty::before {
+    content: attr(data-placeholder);
+    color: #999;
+    font-style: italic;
+}
+
+/* Cuerpo de Texto */
+.body-module {
+    padding: 8px 12px;
+    overflow-y: auto;
+}
+
+.body-text {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.7;
+    color: #2a2a2a;
+    text-align: justify;
+    hyphens: auto;
+    white-space: pre-wrap;
+}
+
+.body-editable {
+    width: 100%;
+    min-height: 100%;
+    outline: none;
+    cursor: text;
+}
+
+.body-editable:empty::before {
+    content: attr(data-placeholder);
+    color: #999;
+    font-style: italic;
+}
+
+/* Imagen */
+.image-module {
+    padding: 0;
+    overflow: hidden;
+}
+
+.editorial-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.image-placeholder {
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.image-placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #999;
+    font-size: 12px;
+}
+
+.image-placeholder:hover {
+    background: #ebebeb;
+}
+
+/* Pie de Foto */
+.caption-module {
+    padding: 4px 12px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.caption-text {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #666;
+    margin: 0;
+    font-style: italic;
+}
+
+.caption-editable {
+    width: 100%;
+    min-height: 16px;
+    outline: none;
+    cursor: text;
+}
+
+.caption-editable:empty::before {
+    content: attr(data-placeholder);
+    color: #999;
+}
+
+/* Módulo Genérico (legacy) */
+.generic-module {
+    padding: 8px;
+}
+
+.generic-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+.generic-textarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+}
+
+/* Clases de módulo en grid-item */
+.grid-item.module-headline,
+.grid-item.module-subheadline,
+.grid-item.module-body,
+.grid-item.module-image,
+.grid-item.module-caption {
+    background: transparent;
+}
+
+/* Modo Preview - sin decoraciones */
+.page-container.preview-mode .editorial-module {
+    cursor: default;
+}
+
+.page-container.preview-mode .headline-editable,
+.page-container.preview-mode .subheadline-editable,
+.page-container.preview-mode .body-editable,
+.page-container.preview-mode .caption-editable {
+    cursor: default;
+}
+
+.page-container.preview-mode .image-placeholder {
+    cursor: default;
+}
+
+.page-container.preview-mode .image-placeholder-content {
+    display: none;
+}
+
 /* Panel de plantillas - siempre visible */
 .templates-panel {
     width: 320px;
@@ -1222,6 +1439,72 @@ body {
 .pdf-export-btn:disabled {
     background: #999;
     cursor: not-allowed;
+}
+
+/* Module type selector */
+.tools-module-type {
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.tools-module-type h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2b2b2b;
+    margin: 0 0 10px 0;
+}
+
+.module-type-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.module-type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.module-type-btn:hover:not(.disabled) {
+    border-color: #2b2b2b;
+    background: #fafafa;
+}
+
+.module-type-btn.active {
+    border-color: #00AACC;
+    background: rgba(0, 170, 204, 0.05);
+}
+
+.module-type-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.module-type-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2b2b2b;
+}
+
+.module-type-btn.active .module-type-label {
+    color: #00AACC;
+}
+
+.module-type-desc {
+    font-size: 11px;
+    color: #999;
+    line-height: 1.3;
 }
 
 /* Export section in tools panel */

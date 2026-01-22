@@ -175,6 +175,7 @@ function App() {
             onDeleteElement={editorMode === 'edit' ? handleDeleteElement : () => {}}
             onSelectElement={editorMode === 'edit' ? handleSelectElement : () => {}}
             showGuides={editorMode === 'edit' && showGuides}
+            editorMode={editorMode}
           />
         </EditorPage>
 
