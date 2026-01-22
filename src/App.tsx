@@ -5,6 +5,7 @@ import Controls from './components/Controls'
 import GridVisualizer from './components/GridVisualizer'
 import CodePanel from './components/CodePanel'
 import TemplatesPanel from './components/TemplatesPanel'
+import EditorPage from './components/EditorPage'
 import { calculateColumns, calculateRows, NEWSPAPER_CONFIG, mmToPx } from './utils/newspaperConfig'
 
 function App() {
@@ -22,6 +23,8 @@ function App() {
   const [activeTab, setActiveTab] = useState<'html' | 'css'>('html')
   const [isNewspaperMode, setIsNewspaperMode] = useState(true)
   const [selectedElementId, setSelectedElementId] = useState<number|null>(null);
+  const [editorMode, setEditorMode] = useState<'edit' | 'preview'>('edit');
+  const [showGuides, setShowGuides] = useState(true);
 
   const updateGrid = useCallback(() => {
     // Filtrar elementos que están completamente fuera del grid
@@ -117,24 +120,48 @@ function App() {
   return (
     <div className="app-layout">
       <div className="main-content">
-        <div className="container">
-          <div className="header-actions">
-            <p className="instruction-text">
-              Finalmente, copia el código HTML y CSS generado y pégalo en tu proyecto.
-            </p>
-            <span className="templates-label">Plantillas</span>
+        <div className="editor-toolbar">
+          <div className="toolbar-left">
+            <button
+              className={`mode-toggle-btn ${editorMode === 'edit' ? 'active' : ''}`}
+              onClick={() => setEditorMode('edit')}
+            >
+              Editar
+            </button>
+            <button
+              className={`mode-toggle-btn ${editorMode === 'preview' ? 'active' : ''}`}
+              onClick={() => setEditorMode('preview')}
+            >
+              Vista Previa
+            </button>
+            {editorMode === 'edit' && (
+              <button
+                className={`guides-toggle-btn ${showGuides ? 'active' : ''}`}
+                onClick={() => setShowGuides(prev => !prev)}
+                title={showGuides ? 'Ocultar guías' : 'Mostrar guías'}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M0 1h16v1H0V1zm0 4h16v1H0V5zm0 4h16v1H0V9zm0 4h16v1H0v-1z" opacity="0.5"/>
+                  <path d="M1 0v16h1V0H1zm4 0v16h1V0H5zm4 0v16h1V0H9zm4 0v16h1V0h-1z" opacity="0.5"/>
+                </svg>
+                Guías
+              </button>
+            )}
           </div>
+          {editorMode === 'edit' && (
+            <Controls
+              columns={columns}
+              rows={rows}
+              gap={gap}
+              isNewspaperMode={isNewspaperMode}
+              onColumnsChange={setColumns}
+              onRowsChange={setRows}
+              onGapChange={setGap}
+            />
+          )}
+        </div>
 
-          <Controls
-            columns={columns}
-            rows={rows}
-            gap={gap}
-            isNewspaperMode={isNewspaperMode}
-            onColumnsChange={setColumns}
-            onRowsChange={setRows}
-            onGapChange={setGap}
-          />
-
+        <EditorPage mode={editorMode}>
           <GridVisualizer
             columns={columns}
             rows={rows}
@@ -142,25 +169,30 @@ function App() {
             gapMm={gap}
             isNewspaperMode={isNewspaperMode}
             elements={elements}
-            selectedElementId={selectedElementId}
-            onAddElement={handleAddElement}
-            onUpdateElement={handleUpdateElement}
-            onDeleteElement={handleDeleteElement}
-            onSelectElement={handleSelectElement}
+            selectedElementId={editorMode === 'edit' ? selectedElementId : null}
+            onAddElement={editorMode === 'edit' ? handleAddElement : () => {}}
+            onUpdateElement={editorMode === 'edit' ? handleUpdateElement : () => {}}
+            onDeleteElement={editorMode === 'edit' ? handleDeleteElement : () => {}}
+            onSelectElement={editorMode === 'edit' ? handleSelectElement : () => {}}
+            showGuides={editorMode === 'edit' && showGuides}
           />
+        </EditorPage>
 
-          <CodePanel
-            showCode={showCode}
-            activeTab={activeTab}
-            columns={columns}
-            rows={rows}
-            gap={gap}
-            isNewspaperMode={isNewspaperMode}
-            elements={elements}
-            onToggleCode={() => setShowCode(prev => !prev)}
-            onTabChange={setActiveTab}
-          />
-        </div>
+        {editorMode === 'edit' && (
+          <div className="container">
+            <CodePanel
+              showCode={showCode}
+              activeTab={activeTab}
+              columns={columns}
+              rows={rows}
+              gap={gap}
+              isNewspaperMode={isNewspaperMode}
+              elements={elements}
+              onToggleCode={() => setShowCode(prev => !prev)}
+              onTabChange={setActiveTab}
+            />
+          </div>
+        )}
       </div>
 
       <TemplatesPanel

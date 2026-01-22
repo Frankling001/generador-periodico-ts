@@ -3,6 +3,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react'
 import GridCells from './GridCells'
 import GridItems from './GridItems'
 import SelectionOverlay from './SelectionOverlay'
+import EditorialGuides from './EditorialGuides'
 
 interface GridVisualizerProps {
   columns: number;
@@ -16,9 +17,10 @@ interface GridVisualizerProps {
   onDeleteElement: (id: number) => void;
   selectedElementId: number | null;
   onSelectElement?: (id: number) => void;
+  showGuides?: boolean;
 }
 
-function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, onAddElement, onUpdateElement, onDeleteElement, selectedElementId, onSelectElement }:GridVisualizerProps) {
+function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, onAddElement, onUpdateElement, onDeleteElement, selectedElementId, onSelectElement, showGuides = true }:GridVisualizerProps) {
   const [isSelecting, setIsSelecting] = useState<boolean>(false)
   const [selectionStart, setSelectionStart] = useState<{col:number,row:number} | null>(null)
   const [selectionEnd, setSelectionEnd] = useState<{col:number,row:number} | null>(null)
@@ -462,12 +464,18 @@ function GridVisualizer({ columns, rows, gap, gapMm, isNewspaperMode, elements, 
 
   return (
     <div className="grid-wrapper">
-      <div 
-        className="grid-main" 
+      <div
+        className="grid-main"
         ref={gridMainRef}
         onMouseDown={handleSelectionStart}
         onMouseLeave={handleSelectionCancel}
       >
+        <EditorialGuides
+          columns={columns}
+          rows={rows}
+          gap={gap}
+          visible={showGuides}
+        />
         <GridCells
           ref={gridCellsRef}
           columns={columns}

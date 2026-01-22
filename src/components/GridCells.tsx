@@ -21,9 +21,7 @@ const GridCells = forwardRef<HTMLDivElement, GridCellsProps>(({ columns, rows, s
         data-index={i}
         data-col={col}
         data-row={row}
-      >
-        <span className="plus-icon">+</span>
-      </div>
+      />
     )
   }
 
